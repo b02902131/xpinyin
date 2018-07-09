@@ -13,7 +13,6 @@ PinyinToneMark = {
     4: u"\u00e0\u00f2\u00e8\u00ec\u00f9\u01dc\u01dc",
 }
 
-
 class Pinyin(object):
 
     """translate chinese hanzi to pinyin by python, inspired by flyerhzm’s
@@ -146,4 +145,35 @@ class Pinyin(object):
                 else:
                     result[-1] += char
 
+        return splitter.join(result)
+
+    def decode_rhymes(self, s='ni'):
+        s = s.lower()
+        vowels = ['a', 'e', 'i', 'o', 'u', 'y']
+        try:
+            index = min(s.find(i) for i in vowels if i in s)
+        except:
+            print("decode_rhymes error: ", s)
+            return -1
+        return s[index:]
+
+    def get_rhymes(self, chars=u'你好', splitter=u'-'):
+        result = []
+        flag = 1
+        for char in chars:
+            key = "%X" % ord(char)
+            try:
+                word = self.dict[key].split()[0].strip()[:-1]
+                tone = self.dict[key].split()[0].strip()[-1]    # this is a number
+                word = self.convert_pinyin(word, 'lower')
+                # get the rhyme
+                rhyme = self.decode_rhymes(word)
+                result.append(rhyme)
+                flag = 1
+            except KeyError:
+                if flag:
+                    result.append(char)
+                else:
+                    result[-1] += char
+                flag = 0
         return splitter.join(result)
